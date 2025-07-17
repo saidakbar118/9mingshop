@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ijtimoiy tarmoqlar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background-color: #f4f4f8; padding-bottom: 100px; color: #1a1a1a; }
+    header {
+      background-color: #160063;
+      color: white;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    header h1 { font-size: 22px; }
+
+    .container {
+      padding: 20px;
+    }
+    .container h2 {
+      font-size: 20px;
+      color: #160063;
+      margin-bottom: 16px;
+    }
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .social-links a {
+      text-decoration: none;
+      color: #160063;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: 0.2s ease;
+    }
+    .social-links a:hover {
+      background: #eee;
+    }
+    .social-links i {
+      font-size: 20px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #160063;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 10;
+    }
+    footer a {
+      text-align: center;
+      font-size: 12px;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      transition: 0.2s ease;
+    }
+    footer a i { font-size: 22px; color: #ffffff; }
+    footer a:hover,
+    footer a:focus {
+      color: #fff;
+      transform: scale(1.05);
+    }
+    footer a:hover i { color: yellow; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-store"></i> 9000 shop</h1>
+  </header>
+
+  <div class="container">
+    <h2>Ijtimoiy tarmoqlarimiz</h2>
+    <div class="social-links">
+      <a href="https://t.me/yourchannel" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+      <a href="https://instagram.com/yourpage" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+      <a href="https://facebook.com/yourpage" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+      <a href="mailto:info@example.com"><i class="fas fa-envelope"></i> Email: info@example.com</a>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/"><i class="fas fa-home"></i><span>Asosiy</span></a>
+    <a href="/"><i class="fas fa-th-list"></i><span>Katalog</span></a>
+    <a href="/free/"><i class="fas fa-gift"></i><span>Bepul</span></a>
+    <a href="/cart/"><i class="fas fa-shopping-cart"></i><span>Savat</span></a>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To‘lov sahifasi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #160063;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .info {
+      margin-bottom: 20px;
+    }
+
+    .info p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .info strong {
+      color: #160063;
+    }
+
+    .payment-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .payment-buttons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      color: white;
+      transition: 0.3s ease;
+    }
+
+    .payment-buttons a.payme {
+      background-color: #1b9cfc;
+    }
+
+    .payment-buttons a.click {
+      background-color: #00b894;
+    }
+
+    .payment-buttons a:hover {
+      opacity: 0.9;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <i class="fas fa-credit-card"></i> To‘lov sahifasi
+  </header>
+
+  <div class="container">
+    <div class="info">
+      <p><strong>Buyurtma raqami:</strong> #{{ order.id }}</p>
+      <p><strong>F.I.Sh:</strong> {{ order.full_name }}</p>
+      <p><strong>Telefon:</strong> {{ order.phone }}</p>
+      <p><strong>Manzil:</strong> {{ order.address }}</p>
+      <p><strong>To‘lov turi:</strong> 
+        {% if order.payment_type == 'oldindan' %} Oldindan to‘lov {% else %} Olgandan so‘ng {% endif %}
+      </p>
+      <p><strong>Jami to‘lov:</strong> <span style="color: green">{{ order.total_price|floatformat:0 }} so‘m</span></p>
+    </div>
+
+    <div class="payment-buttons">
+      <a href="#" class="payme"><i class="fas fa-wallet"></i> Payme orqali to‘lash</a>
+      <a href="#" class="click"><i class="fas fa-mobile-alt"></i> Click orqali to‘lash</a>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 9000 shop. Barcha huquqlar himoyalangan.
+  </footer>
+</body>
+</html>

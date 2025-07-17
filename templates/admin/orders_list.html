@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buyurtmalar</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #2a2934;
+      color: #2c2c2c;
+      padding: 40px;
+    }
+  
+    h2 {
+      font-size: 28px;
+      color: #decdcd;
+      margin-bottom: 30px;
+      border-left: 6px solid #4b2e83;
+      padding-left: 14px;
+    }
+  
+    .order-card {
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: transform 0.2s ease;
+    }
+  
+    .order-card:hover {
+      transform: translateY(-4px);
+    }
+  
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+  
+    .order-info {
+      font-size: 15px;
+      color: #fff;
+    }
+  
+    .products {
+      margin: 16px 0;
+      padding-left: 24px;
+      color: #fff;
+    }
+  
+    .products li {
+      line-height: 1.7;
+      font-weight: 500;
+    }
+  
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+  
+    select {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #333;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+  
+    select:hover {
+      border-color: #fff;
+      background-color: #333;
+    }
+  
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+  
+    .btn-delete:hover {
+      background: #b02a37;
+    }
+  
+    @media screen and (max-width: 480px) {
+        .order {
+          padding: 10px;
+          border-radius: 8px;
+        }
+      
+        .order-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+      
+        .order-details {
+          font-size: 10px;
+        }
+      
+        .products ul {
+          font-size: 10px;
+        }
+      
+        .actions {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+      
+        .actions form {
+          width: 100%;
+        }
+      
+        .actions button,
+        .actions select {
+          font-size: 13px;
+          padding: 8px;
+          width: 100%;
+        }
+      }
+      
+  </style>
+  
+</head>
+<body>
+
+<h2>Barcha Buyurtmalar</h2>
+
+{% for order in orders %}
+<div class="order-card">
+  <div class="order-header">
+    <strong>#{{ order.id }}</strong>
+    <span>{{ order.created_at|date:"d-m-Y H:i" }}</span>
+  </div>
+
+  <div class="order-info">
+    <p><strong>Mijoz:</strong> {{ order.full_name }}</p>
+    <p><strong>Tel:</strong> {{ order.phone }}</p>
+    <p><strong>Manzil:</strong> {{ order.address }}</p>
+    <p><strong>Umumiy:</strong> {{ order.total_price }} so'm</p>
+    <p><strong>Tolov:</strong> {{ order.payment_type }}</p>
+  </div>
+
+  <ul class="products">
+    {% for item in order.items.all %}
+    <li>{{ item.product.title }} × {{ item.quantity }}</li>
+    {% endfor %}
+  </ul>
+
+  <div class="actions">
+    <select onchange="updateStatus({{ order.id }}, this.value)">
+      <option value="yangi" {% if order.status == 'yangi' %}selected{% endif %}>🕓 Yangi</option>
+      <option value="qabul qilingan" {% if order.status == 'qabul qilingan' %}selected{% endif %}>✅ Qabul qilingan</option>
+      <option value="yetkazilgan" {% if order.status == 'yetkazilgan' %}selected{% endif %}>📦 Yetkazilgan</option>
+    </select>
+
+    <button class="btn-delete" onclick="deleteOrder({{ order.id }})">O‘chirish</button>
+  </div>
+</div>
+{% empty %}
+<p>Hozircha buyurtmalar yo‘q.</p>
+{% endfor %}
+
+<script>
+function updateStatus(orderId, status) {
+  fetch(`/orders/update/${orderId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `status=${status}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert("✅ Status yangilandi");
+      // Sahifani yangilamaymiz!
+    } else {
+      alert("❌ Xatolik: " + data.error);
+    }
+  });
+}
+
+function deleteOrder(orderId) {
+  if (confirm("Buyurtmani o‘chirmoqchimisiz?")) {
+    fetch(`/orders/delete/${orderId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("O‘chirildi");
+        location.reload();
+      } else {
+        alert("❌ Xatolik: " + data.error);
+      }
+    });
+  }
+}
+</script>
+
+</body>
+</html>

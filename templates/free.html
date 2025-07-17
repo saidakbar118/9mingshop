@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bepul Mahsulotlar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f9f9f9;
+      --text: #1a1a1a;
+      --primary: #160063;
+      --card: white;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    body::-webkit-scrollbar {
+      display: none;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .info {
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .product {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 2px 10px var(--shadow);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .product img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+
+    .discount {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: var(--primary);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .product h3 {
+      font-size: 14px;
+      margin: 4px 0;
+      height: 34px;
+      overflow: hidden;
+      line-height: 1.2;
+    }
+
+    .price {
+      font-size: 15px;
+      font-weight: bold;
+      color: green;
+      margin-bottom: 4px;
+    }
+
+    .stars {
+      color: #ffc107;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    form {
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .add-to-cart {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .add-to-cart[disabled] {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: var(--primary);
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0;
+      z-index: 99;
+    }
+
+    footer a {
+      text-align: center;
+      color: #e0e0e0;
+      text-decoration: none;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    footer a i {
+      font-size: 18px;
+    }
+
+    @media (min-width: 768px) {
+      .products {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+
+      .product img {
+        height: 220px;
+      }
+
+      .product h3 {
+        font-size: 15px;
+        height: 20px;
+      }
+
+      .add-to-cart {
+        font-size: 15px;
+        padding: 10px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <i class="fas fa-store"></i> 9000 shop – Bepul Mahsulotlar
+  </header>
+
+  <div class="info">
+    {% if max_count > 0 %}
+      {{ max_count }} ta bepul mahsulot tanlash mumkin. Siz {{ selected_count }} ta tanladingiz.
+    {% else %}
+      Bepul mahsulotlardan foydalanish uchun kamida 50 000 so'mlik buyurtma qiling.
+    {% endif %}
+  </div>
+
+  <div class="products">
+    {% for product in free_products %}
+    <div class="product">
+      <div class="discount">100%</div>
+      <img src="{{ product.image.url }}" alt="{{ product.title }}">
+      <h3>{{ product.title }}</h3>
+      <div class="price">Bepul</div>
+      <div class="stars">
+        ★★★★★ <!-- Dinamik qilish mumkin: {{ product.rating|default:"★★★★☆" }} -->
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <button type="submit"
+          class="add-to-cart"
+          {% if selected_count >= max_count or product.id|stringformat:"s" in selected_ids %}disabled{% endif %}>
+          Tanlash
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+
+</body>
+</html>

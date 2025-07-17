@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9000 Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f4f4f8;
+      --text: #1a1a1a;
+      --primary: #160063;
+      --card: white;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    html, body {
+      height: 100%;
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    body::-webkit-scrollbar {
+      display: none;
+    }
+    header {
+      background-color: #160063;
+      color: white;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* <- bu line style A va B birlashtirilgan */
+    }
+    
+    header h1 {
+      font-size: 22px;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: var(--card);
+      border-bottom: 1px solid #ccc;
+      position: relative;
+    }
+    .sidebar-toggle {
+      font-size: 20px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .search-bar button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 998;
+    }
+    .overlay.active {
+      display: block;
+    }
+    .sidebar {
+      position: fixed;
+      left: -250px;
+      top: 0;
+      width: 240px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.50);
+      color: white;
+      padding: 40px 20px 20px 20px;
+      transition: 0.3s ease;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar h3 {
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .sidebar ul li {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .sidebar ul li i {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
+    .banner {
+      margin: 8px auto 4px;
+      border-radius: 12px;
+      overflow: hidden;
+      width: 97%;
+      height: 300px;
+    }
+    .banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    @media (max-width: 768px) {
+      .banner {
+        height: 160px;
+      }
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 6px 16px 80px 16px;
+    }
+    .product {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 2px 10px var(--shadow);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      text-align: left;
+      height: auto;
+    }
+    .product img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .discount {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: var(--primary);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .product h3 {
+      font-size: 12px;
+      margin: 4px 0;
+      height: 20px;
+      overflow: hidden;
+      line-height: 1.2;
+    }
+    .price {
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+      margin-bottom: 6px;
+    }
+    
+    .price strong {
+      font-size: 16px;
+    }
+    
+    .old-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 12px;
+      color: #777;
+    }
+    
+    .old-price del {
+      color: #999;
+      font-size: 12px;
+    }
+    
+    .stars {
+      color: #ffc107;
+      font-size: 12px;
+    }    
+    .add-to-cart {
+      display: inline-block;
+      background: #160063;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      text-align: center;
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #160063;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 10;
+    }
+    
+    footer a {
+      text-align: center;
+      font-size: 12px;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      transition: 0.2s ease;
+    }
+    
+    footer a i {
+      font-size: 22px;
+      color: #ffffff;
+    }
+    
+    footer a:hover,
+    footer a:focus {
+      color: #fff;
+      transform: scale(1.05);
+    }
+    
+    footer a:hover i {
+      color: yellow;
+    }    
+    @media (min-width: 768px) {
+      .products {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+      footer div {
+        font-size: 14px;
+      }
+      footer i {
+        font-size: 24px;
+      }
+      .product h3 {
+        font-size: 14px;
+        margin: 6px 0;
+        height: 36px;
+      }
+      .product img {
+        height: 250px;
+      }
+      .add-to-cart {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+    }
+    .catalog-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.50);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    
+    .catalog-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+    
+    .catalog-content {
+      background: rgba(0, 0, 0, 0.50);
+      padding: 20px;
+      width: 80%;
+      max-width: 300px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .catalog-modal.active .catalog-content {
+      transform: scale(1);
+      opacity: 1;
+    }    
+    
+    .catalog-content h3 {
+      text-align: center;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    
+    .catalog-content ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .catalog-content ul li {
+      margin: 10px 0;
+    }
+    
+    .catalog-content ul li a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #fff;
+      display: block;
+      padding: 8px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+    
+    .catalog-content ul li a:hover {
+      background: #160063;
+      color: #fff;
+    }    
+  </style>
+  
+</head>
+<body>
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <h3>Menyu</h3>
+    <ul>
+      <li><i class="fas fa-shopping-bag"></i> <a href="#">Buyurtmalar</a></li>
+      <li><i class="fas fa-bell"></i> <a href="#aksiyalar">Bildirishnoma</a></li>
+      <li><i class="fas fa-ticket-alt"></i> <a href="#kategoriyalar">Promokod</a></li>
+      <li><i class="fas fa-chart-bar"></i> <a href="#profil">Statistika</a></li>
+      <li><i class="fab fa-instagram"></i> <a href="/media/">Ijtimoiy tarmoqlar</a></li>
+      <li><i class="fas fa-cogs"></i> <a href="#yordam">Dastur sozlamalari</a></li>
+      <li><i class="fas fa-info-circle"></i> <a href="/about/">Umumiy ma'lumot</a></li>
+      <li><i class="fas fa-phone-alt"></i> <a href="/contact/">Bog'lanish</a></li>
+    </ul>
+    <div style="margin-top: 300px; font-size: 15px; color: #ccc; text-align: center;">
+      © Nano Soft
+    </div>
+  </div>
+
+  <header>
+    <h1><i class="fas fa-store"></i> 9000 shop</h1>
+  </header>
+
+  <form method="get" class="search-bar">
+    <i class="fas fa-bars sidebar-toggle" onclick="toggleSidebar()"></i>
+    <input type="text" name="search" placeholder="Qidirish..." value="{{ search_query|default:'' }}">
+    <button type="submit"><i class="fas fa-search"></i></button>
+  </form>
+
+  {% for i in banner %}
+  <div class="banner">
+    <img src="{{i.image.url}}" alt="Banner">
+  </div>
+  {% endfor %}
+
+  <section class="products">
+    {% for product in products %}
+    <div class="product">
+      {% if product.has_discount %}
+        <span class="discount">{{ product.discount_percent }}%</span>
+      {% endif %}
+  
+      <img src="{{ product.image.url }}" alt="{{ product.title }}">
+      <h3>{{ product.title }}</h3>
+  
+      <div class="price">
+        <div><strong>{{ product.price|floatformat:0 }} so'm</strong></div>
+        {% if product.has_discount %}
+        <div class="old-price">
+          <div class="stars">★★★★★</div>
+          <del>{{ product.old_price|floatformat:0 }} so'm</del>
+        </div>
+        {% endif %}
+      </div>
+  
+      <a href="{% url 'add_to_cart' product.id %}" class="add-to-cart">
+        <i class="fas fa-cart-plus"></i> Savatcha
+      </a>
+    </div>
+    {% empty %}
+      <p>Hozircha mahsulotlar yo‘q.</p>
+    {% endfor %}
+  </section>
+  
+
+  <footer>
+    <a href="/"><i class="fas fa-home"></i><span>Asosiy</span></a>
+    <a href="#" id="openCatalog"><i class="fas fa-th-list"></i><span>Katalog</span></a>
+    <a href="/free/"><i class="fas fa-gift"></i><span>Bepul</span></a>
+    <a href="/cart/"><i class="fas fa-shopping-cart"></i><span>Savat</span></a>
+  </footer>
+
+  <div class="catalog-modal" id="catalogModal" onclick="closeModal()">
+    <div class="catalog-content" onclick="event.stopPropagation()">
+      <ul>
+        {% for category in categories %}
+          <li><a href="?category={{ category.slug }}">• {{ category.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>   
+  
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+  </script>
+  <script>
+    const buttons = document.querySelectorAll(".add-to-cart");
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        alert("Mahsulot savatchaga qo'shildi!");
+      });
+    });
+  </script>  
+  <script>
+    const catalogModal = document.getElementById('catalogModal');
+    const openCatalogBtn = document.getElementById('openCatalog');
+  
+    openCatalogBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      catalogModal.style.display = 'flex';
+    });
+  
+    function closeCatalog() {
+      catalogModal.style.display = 'none';
+    }
+  
+    // Modalni tashqarisiga bosilganda yopish
+    window.addEventListener('click', function(e) {
+      if (e.target === catalogModal) {
+        closeCatalog();
+      }
+    });
+  </script>  
+  <script>
+    const modal = document.getElementById('catalogModal');
+    const openBtn = document.getElementById('openCatalog');
+  
+    openBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.classList.add('active');
+      }, 10); // animatsiya ishlashi uchun biroz kechikish
+    });
+  
+    function closeModal() {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 300); // animatsiya tugaguncha kutish
+    }
+  </script>
+</body>
+</html>
