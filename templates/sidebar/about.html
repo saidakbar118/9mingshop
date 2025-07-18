@@ -27,6 +27,14 @@
     }
     header h1 {
       font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-toggle {
+      font-size: 20px;
+      color: white;
+      cursor: pointer;
     }
     main {
       padding: 20px;
@@ -73,14 +81,92 @@
     footer a:hover i {
       color: yellow;
     }
+
+    /* Sidebar & overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 998;
+    }
+    .overlay.active {
+      display: block;
+    }
+    .sidebar {
+      position: fixed;
+      left: -250px;
+      top: 0;
+      width: 240px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 40px 20px 20px 20px;
+      transition: 0.3s ease;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar h3 {
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .sidebar ul li {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .sidebar ul li i {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
+    .sidebar ul li a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Sidebar & Overlay -->
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <h3>Menyu</h3>
+    <ul>
+      <li><i class="fas fa-shopping-bag"></i> <a href="#">Buyurtmalar</a></li>
+      <li><i class="fas fa-bell"></i> <a href="#aksiyalar">Bildirishnoma</a></li>
+      <li><i class="fas fa-ticket-alt"></i> <a href="#kategoriyalar">Promokod</a></li>
+      <li><i class="fas fa-chart-bar"></i> <a href="#profil">Statistika</a></li>
+      <li><i class="fab fa-instagram"></i> <a href="/media/">Ijtimoiy tarmoqlar</a></li>
+      <li><i class="fas fa-cogs"></i> <a href="#yordam">Dastur sozlamalari</a></li>
+      <li><i class="fas fa-info-circle"></i> <a href="/about/">Umumiy ma'lumot</a></li>
+      <li><i class="fas fa-phone-alt"></i> <a href="/contact/">Bog'lanish</a></li>
+    </ul>
+    <div style="margin-top: 300px; font-size: 15px; color: #ccc; text-align: center;">
+      © Nano Soft
+    </div>
+  </div>
+
+  <!-- Header -->
   <header>
     <h1><i class="fas fa-store"></i> 9000 shop</h1>
+    <i class="fas fa-bars sidebar-toggle" onclick="toggleSidebar()"></i>
   </header>
 
+  <!-- Main content -->
   <main>
     <h2>Biz haqimizda</h2>
     <p><strong>9000 shop</strong> — bu zamonaviy onlayn do‘kon bo‘lib, foydalanuvchilarga sifatli mahsulotlarni tez va qulay yetkazib berishni maqsad qilgan. Biz elektronika, kiyim-kechak, kundalik buyumlar va ko‘plab turdagi mahsulotlarni taklif qilamiz. Do‘konimiz har kuni yangilanib boradi va foydalanuvchilarga eng so‘nggi aksiyalarni taqdim etadi.</p>
@@ -96,12 +182,23 @@
     <p>Agar siz ham o‘z biznesingiz uchun raqamli echim izlayotgan bo‘lsangiz, biz bilan bog‘laning. Nano Soft — ishonchli texnologik hamkor!</p>
   </main>
 
+  <!-- Footer -->
   <footer>
     <a href="/"><i class="fas fa-home"></i><span>Asosiy</span></a>
     <a href="/"><i class="fas fa-th-list"></i><span>Katalog</span></a>
     <a href="/free/"><i class="fas fa-gift"></i><span>Bepul</span></a>
     <a href="/cart/"><i class="fas fa-shopping-cart"></i><span>Savat</span></a>
   </footer>
+
+  <!-- Sidebar script -->
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+  </script>
 
 </body>
 </html>

@@ -212,6 +212,33 @@ def reverse_geocode(request):
         return JsonResponse({'address': manzil})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+def get_location_by_ip(request):
+    # IP manzilni olish
+    ip = request.META.get('HTTP_X_FORWARDED_FOR')
+    if ip:
+        ip = ip.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+
+    try:
+        # ip-api.com bepul API
+        response = requests.get(f'http://ip-api.com/json/{ip}')
+        data = response.json()
+
+        if data['status'] == 'success':
+            return JsonResponse({
+                'lat': data['lat'],
+                'lon': data['lon'],
+                'city': data['city'],
+                'region': data['regionName'],
+                'country': data['country']
+            })
+        else:
+            raise Exception("IP orqali joylashuv topilmadi")
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 
 

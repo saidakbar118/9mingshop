@@ -308,7 +308,7 @@
       top: 50%;
       right: 8px;
       transform: translateY(-50%);
-      background: gold;
+      background: midnightblue;
       border: none;
       border-radius: 8px;
       font-size: 18px;
@@ -442,7 +442,9 @@
         <input type="text" name="full_name" required>
   
         <label>Telefon raqami:</label>
-        <input type="text" name="phone" required placeholder="+998901234567">
+        <input type="tel" name="phone" required placeholder="+998 (90) 123-45-67"
+              pattern="^\+998\s\(\d{2}\)\s\d{3}-\d{2}-\d{2}$"
+              inputmode="numeric">
   
         <label>Manzilni belgilash:</label>
         <div class="address-group">
@@ -476,7 +478,9 @@
         <div id="cardDetails" style="display: none; background: #f8f8f8; border-radius: 10px; padding: 12px; margin-top: 10px;">
           <p><strong>💳:</strong> 
             <span id="cardNumber">8600 1234 5678 9012</span>
-            <i class="fas fa-copy" onclick="copyToClipboard('cardNumber')" style="margin-left:8px; cursor:pointer; color: #160063;"></i>
+            <button type="button" onclick="copyToClipboard('cardNumber')" style="background:none;border:none;cursor:pointer;">
+              <i class="fas fa-copy" style="color:#160063;"></i>
+            </button>
           </p>
           <p><strong>Muhammadxonov Kamolxon</strong></p>
         </div>
@@ -525,35 +529,61 @@
     function openMap() {
       document.getElementById("mapModal").style.display = "flex";
     
-      if (!map) {
-        map = L.map("map").setView([41.3111, 69.2797], 13); // Tashkent
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success, fallbackToIP);
+      } else {
+        fallbackToIP();
+      }
     
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap",
-        }).addTo(map);
+      function success(pos) {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        showMap(lat, lng, 15);
+      }
     
-        map.on("click", function (e) {
-          selectedLatLng = e.latlng;
-          if (marker) {
-            marker.setLatLng(e.latlng);
-          } else {
-            marker = L.marker(e.latlng).addTo(map);
-          }
-        });
-    
-        // Geolokatsiya
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function (pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            selectedLatLng = { lat, lng };
-            map.setView([lat, lng], 15);
-            marker = L.marker([lat, lng]).addTo(map);
+      function fallbackToIP() {
+        fetch("/api/ip-location/")
+          .then(res => res.json())
+          .then(data => {
+            const lat = data.lat || 40.7821;
+            const lng = data.lon || 72.3442;
+            showMap(lat, lng, 13);
+          })
+          .catch(() => {
+            // oxirgi variant: fallback to Andijon
+            showMap(40.7821, 72.3442, 13);
           });
+      }
+    
+      function showMap(lat, lng, zoom) {
+        selectedLatLng = { lat, lng };
+    
+        if (!map) {
+          map = L.map("map").setView([lat, lng], zoom);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "© OpenStreetMap",
+          }).addTo(map);
+    
+          marker = L.marker([lat, lng]).addTo(map);
+    
+          map.on("click", function (e) {
+            selectedLatLng = e.latlng;
+            if (marker) {
+              marker.setLatLng(e.latlng);
+            } else {
+              marker = L.marker(e.latlng).addTo(map);
+            }
+          });
+        } else {
+          map.setView([lat, lng], zoom);
+          if (marker) {
+            marker.setLatLng([lat, lng]);
+          } else {
+            marker = L.marker([lat, lng]).addTo(map);
+          }
         }
       }
-    }
-    
+    }    
     function closeMap() {
       document.getElementById("mapModal").style.display = "none";
     }
@@ -589,19 +619,66 @@
         }
       });
     });
-  
-    function copyToClipboard(elementId) {
-      const text = document.getElementById(elementId).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Karta raqami nusxalandi");
-      }).catch(err => {
-        alert("Nusxalab bo‘lmadi");
-      });
-    }
   </script>
     
+  <script>
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).textContent || '';
   
-    
+      // 1. Modern clipboard API (desktop & supported mobile browsers)
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Karta raqami nusxalandi");
+        }).catch(err => {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
+      }
+    }
+  
+    // 2. Fallback usul: eski brauzerlar uchun (input ni yaratib tanlash)
+    function fallbackCopy(text) {
+      const tempInput = document.createElement("input");
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      tempInput.setSelectionRange(0, 99999); // mobil uchun
+      try {
+        const successful = document.execCommand("copy");
+        alert(successful ? "Karta raqami nusxalandi" : "Nusxalab bo‘lmadi");
+      } catch (err) {
+        alert("Clipboard qo‘llab-quvvatlanmaydi");
+      }
+      document.body.removeChild(tempInput);
+    }
+  </script>
+  <script>
+    const phoneInput = document.querySelector('input[name="phone"]');
+  
+    phoneInput.addEventListener('input', function(e) {
+      let numbers = this.value.replace(/\D/g, ''); // faqat raqamlarni olib qol
+      if (numbers.startsWith("998")) numbers = numbers.slice(3); // 998 ni olib tashla
+      if (numbers.startsWith("8")) numbers = numbers.slice(1); // 8 bilan boshlansa olib tashla
+  
+      let formatted = "+998";
+  
+      if (numbers.length > 0) {
+        formatted += " (" + numbers.substring(0, 2);
+      }
+      if (numbers.length >= 2) {
+        formatted += ") " + numbers.substring(2, 5);
+      }
+      if (numbers.length >= 5) {
+        formatted += "-" + numbers.substring(5, 7);
+      }
+      if (numbers.length >= 7) {
+        formatted += "-" + numbers.substring(7, 9);
+      }
+  
+      this.value = formatted;
+    });
+  </script>  
   
 </body>
 </html>

@@ -13,6 +13,8 @@ urlpatterns = [
     path('free/',free_info_view),
     path('thanks/', thanks_view, name='thanks'),
     path('api/reverse/', reverse_geocode, name='reverse_geocode'),
+    path('api/ip-location/', get_location_by_ip),
+
     
     #sidebar
     path('media/',media_view),

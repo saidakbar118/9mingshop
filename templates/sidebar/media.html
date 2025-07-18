@@ -6,8 +6,17 @@
   <title>Ijtimoiy tarmoqlar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { background-color: #f4f4f8; padding-bottom: 100px; color: #1a1a1a; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: #f4f4f8;
+      padding-bottom: 100px;
+      color: #1a1a1a;
+    }
     header {
       background-color: #160063;
       color: white;
@@ -17,8 +26,17 @@
       align-items: center;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    header h1 { font-size: 22px; }
-
+    header h1 {
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-toggle {
+      font-size: 20px;
+      color: white;
+      cursor: pointer;
+    }
     .container {
       padding: 20px;
     }
@@ -51,7 +69,6 @@
     .social-links i {
       font-size: 20px;
     }
-
     footer {
       position: fixed;
       bottom: 0;
@@ -73,18 +90,97 @@
       text-decoration: none;
       transition: 0.2s ease;
     }
-    footer a i { font-size: 22px; color: #ffffff; }
+    footer a i {
+      font-size: 22px;
+      color: #ffffff;
+    }
     footer a:hover,
     footer a:focus {
       color: #fff;
       transform: scale(1.05);
     }
-    footer a:hover i { color: yellow; }
+    footer a:hover i {
+      color: yellow;
+    }
+    /* Sidebar and overlay styles */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 998;
+    }
+    .overlay.active {
+      display: block;
+    }
+    .sidebar {
+      position: fixed;
+      left: -250px;
+      top: 0;
+      width: 240px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.50);
+      color: white;
+      padding: 40px 20px 20px 20px;
+      transition: 0.3s ease;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar h3 {
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .sidebar ul li {
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .sidebar ul li i {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Overlay and Sidebar -->
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <h3>Menyu</h3>
+    <ul>
+      <li><i class="fas fa-shopping-bag"></i> <a href="#">Buyurtmalar</a></li>
+      <li><i class="fas fa-bell"></i> <a href="#aksiyalar">Bildirishnoma</a></li>
+      <li><i class="fas fa-ticket-alt"></i> <a href="#kategoriyalar">Promokod</a></li>
+      <li><i class="fas fa-chart-bar"></i> <a href="#profil">Statistika</a></li>
+      <li><i class="fab fa-instagram"></i> <a href="/media/">Ijtimoiy tarmoqlar</a></li>
+      <li><i class="fas fa-cogs"></i> <a href="#yordam">Dastur sozlamalari</a></li>
+      <li><i class="fas fa-info-circle"></i> <a href="/about/">Umumiy ma'lumot</a></li>
+      <li><i class="fas fa-phone-alt"></i> <a href="/contact/">Bog'lanish</a></li>
+    </ul>
+    <div style="margin-top: 300px; font-size: 15px; color: #ccc; text-align: center;">
+      © Nano Soft
+    </div>
+  </div>
+
   <header>
     <h1><i class="fas fa-store"></i> 9000 shop</h1>
+    <i class="fas fa-bars sidebar-toggle" onclick="toggleSidebar()"></i>
   </header>
 
   <div class="container">
@@ -103,5 +199,15 @@
     <a href="/free/"><i class="fas fa-gift"></i><span>Bepul</span></a>
     <a href="/cart/"><i class="fas fa-shopping-cart"></i><span>Savat</span></a>
   </footer>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+  </script>
+
 </body>
 </html>
