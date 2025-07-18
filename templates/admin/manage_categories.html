@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Category Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #f5f7fa;
+      padding: 20px;
+      margin: 0;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .item {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .item strong {
+      font-size: 18px;
+      color: #222;
+    }
+
+    .item em {
+      font-size: 14px;
+      color: #777;
+    }
+
+    form {
+      margin-top: 10px;
+    }
+
+    input[type="text"],
+    button {
+      padding: 10px;
+      margin: 8px 0;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #357ab8;
+    }
+
+    button[name="delete_category"] {
+      background-color: #e74c3c;
+    }
+
+    button[name="delete_category"]:hover {
+      background-color: #c0392b;
+    }
+
+    button[name="edit_category"] {
+      background-color: #f39c12;
+    }
+
+    button[name="edit_category"]:hover {
+      background-color: #d68910;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: #ddd;
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Category Management</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="add_category">➕ Yangi Category qo‘shish</button>
+  </form>
+
+  <hr>
+
+  {% for category in categories %}
+    <div class="item">
+      <strong>{{ category.name }}</strong> <br>
+      <em>{{ category.slug }}</em>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="category_id" value="{{ category.id }}">
+        <input type="text" name="name" value="{{ category.name }}">
+        <input type="text" name="slug" value="{{ category.slug }}">
+        <button type="submit" name="edit_category">✏️ Tahrirlash</button>
+        <button type="submit" name="delete_category" onclick="return confirm('Ishonchingiz komilmi?')">🗑️ O‘chirish</button>
+      </form>
+    </div>
+  {% endfor %}
+</body>
+</html>

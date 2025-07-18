@@ -274,3 +274,71 @@ def delete_order(request, order_id):
     return JsonResponse({'success': False, 'error': 'Noto‘g‘ri so‘rov'})
 
 
+def manage_categories(request):
+    categories = Category.objects.all()
+    form = CategoryForm(request.POST or None)
+    if request.method == 'POST' and 'add_category' in request.POST:
+        if form.is_valid():
+            form.save()
+            return redirect('/manage/categories/')
+
+    if request.method == 'POST' and 'edit_category' in request.POST:
+        category = get_object_or_404(Category, id=request.POST.get('category_id'))
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('/manage/categories/')
+
+    if request.method == 'POST' and 'delete_category' in request.POST:
+        category = get_object_or_404(Category, id=request.POST.get('category_id'))
+        category.delete()
+        return redirect('/manage/categories/')
+
+    context = {
+        'categories': categories,
+        'form': form
+    }
+    return render(request, 'admin/manage_categories.html', context)
+
+def manage_products(request):
+    products = Product.objects.all()
+    categories = Category.objects.all()
+    
+    product_form = ProductForm()
+    category_form = CategoryForm()
+
+    if request.method == 'POST':
+        if 'create_product' in request.POST:
+            product_form = ProductForm(request.POST, request.FILES)
+            if product_form.is_valid():
+                product_form.save()
+                return redirect('/manage/')
+
+        elif 'create_category' in request.POST:
+            category_form = CategoryForm(request.POST)
+            if category_form.is_valid():
+                category_form.save()
+                return redirect('/manage/')
+
+    return render(request, 'admin/manage_products.html', {
+        'products': products,
+        'categories': categories,
+        'product_form': product_form,
+        'category_form': category_form,
+    })
+
+def edit_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('/manage/')
+    return render(request, 'admin/edit_form.html', {'form': ProductForm(instance=product)})
+
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product.delete()
+    return redirect('/manage/')
+
+
