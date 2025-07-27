@@ -8,10 +8,10 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #2a2934;
-      color: #2c2c2c;
+      color: #fff;
       padding: 40px;
     }
-  
+
     h2 {
       font-size: 28px;
       color: #decdcd;
@@ -19,51 +19,49 @@
       border-left: 6px solid #4b2e83;
       padding-left: 14px;
     }
-  
+
     .order-card {
-      background: rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.06);
       border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       padding: 24px;
       margin-bottom: 24px;
       transition: transform 0.2s ease;
+      position: relative;
     }
-  
+
     .order-card:hover {
       transform: translateY(-4px);
     }
-  
+
     .order-header {
       display: flex;
       justify-content: space-between;
       font-weight: 600;
       margin-bottom: 12px;
-      color: #fff;
     }
-  
+
     .order-info {
       font-size: 15px;
-      color: #fff;
     }
-  
+
     .products {
       margin: 16px 0;
       padding-left: 24px;
-      color: #fff;
     }
-  
+
     .products li {
       line-height: 1.7;
       font-weight: 500;
     }
-  
+
     .actions {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-top: 12px;
     }
-  
+
     select {
       padding: 6px 12px;
       border-radius: 8px;
@@ -72,14 +70,8 @@
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.2s;
     }
-  
-    select:hover {
-      border-color: #fff;
-      background-color: #333;
-    }
-  
+
     .btn-delete {
       background: #dc3545;
       color: white;
@@ -88,60 +80,45 @@
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s ease;
     }
-  
-    .btn-delete:hover {
-      background: #b02a37;
+
+    .status-step {
+      font-size: 24px;
+      margin-top: 12px;
+      cursor: pointer;
+      color: gray;
+      transition: color 0.3s;
     }
-  
-    @media screen and (max-width: 480px) {
-        .order {
-          padding: 10px;
-          border-radius: 8px;
-        }
-      
-        .order-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
-        }
-      
-        .order-details {
-          font-size: 10px;
-        }
-      
-        .products ul {
-          font-size: 10px;
-        }
-      
-        .actions {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 10px;
-        }
-      
-        .actions form {
-          width: 100%;
-        }
-      
-        .actions button,
-        .actions select {
-          font-size: 13px;
-          padding: 8px;
-          width: 100%;
-        }
-      }
-      
+
+    .status-step.done {
+      color: #0f0; /* ko‘k/green holat */
+    }
+
+    .hidden {
+      display: none;
+    }
+    .btn-save {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    .btn-save:hover {
+      background: #218838;
+    }
+    
   </style>
-  
 </head>
 <body>
 
 <h2>Barcha Buyurtmalar</h2>
 
 {% for order in orders %}
-<div class="order-card">
+<div id="order-{{ order.id }}" class="order-card">
   <div class="order-header">
     <strong>#{{ order.id }}</strong>
     <span>{{ order.created_at|date:"d-m-Y H:i" }}</span>
@@ -162,60 +139,76 @@
   </ul>
 
   <div class="actions">
-    <select onchange="updateStatus({{ order.id }}, this.value)">
-      <option value="yangi" {% if order.status == 'yangi' %}selected{% endif %}>🕓 Yangi</option>
-      <option value="qabul qilingan" {% if order.status == 'qabul qilingan' %}selected{% endif %}>✅ Qabul qilingan</option>
-      <option value="yetkazilgan" {% if order.status == 'yetkazilgan' %}selected{% endif %}>📦 Yetkazilgan</option>
+    <select id="status-{{ order.id }}">
+      <option value="created" {% if order.status == 'created' %}selected{% endif %}>🕓 Yangi</option>
+      <option value="preparing" {% if order.status == 'preparing' %}selected{% endif %}>👨‍🍳 Tayyorlanmoqda</option>
+      <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>🚚 Jo‘natildi</option>
+      <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>📦 Yetib keldi</option>
     </select>
-
-    <button class="btn-delete" onclick="deleteOrder({{ order.id }})">O‘chirish</button>
+  
+    <button class="btn-save" onclick="saveStatus({{ order.id }})">💾 Saqlash</button>
+    <button class="btn-delete" onclick="deleteOrder({{ order.id }})">🗑️ O‘chirish</button>
   </div>
+  
+
+  {% if order.status == 'delivered' %}
+  <div class="status-step" onclick="confirmReceived({{ order.id }}, this)" title="Yetib keldi deb tasdiqlash">
+    <i class="fas fa-thumbs-up"></i>
+  </div>
+{% endif %}
 </div>
 {% empty %}
 <p>Hozircha buyurtmalar yo‘q.</p>
 {% endfor %}
 
 <script>
-function updateStatus(orderId, status) {
-  fetch(`/orders/update/${orderId}/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': '{{ csrf_token }}',
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: `status=${status}`
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      alert("✅ Status yangilandi");
-      // Sahifani yangilamaymiz!
-    } else {
-      alert("❌ Xatolik: " + data.error);
-    }
-  });
-}
+  function saveStatus(orderId) {
+    const selectedStatus = document.getElementById(`status-${orderId}`).value;
 
-function deleteOrder(orderId) {
-  if (confirm("Buyurtmani o‘chirmoqchimisiz?")) {
-    fetch(`/orders/delete/${orderId}/`, {
+    fetch(`/update-order-status/${orderId}/`, {
       method: 'POST',
       headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')  // CSRF token qo‘shamiz
+      },
+      body: JSON.stringify({ status: selectedStatus })
     })
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert("O‘chirildi");
-        location.reload();
+        alert("✅ Buyurtma holati yangilandi!");
       } else {
-        alert("❌ Xatolik: " + data.error);
+        alert(`❌ Xatolik: ${data.error}`);
       }
+    })
+    .catch(error => {
+      alert(`❌ Server bilan bog‘lanishda xatolik: ${error}`);
     });
   }
-}
+
+  // Django uchun CSRF cookie olish funksiyasi
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        // Cookie nomi bilan solishtiramiz
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
 </script>
+
+
+  
+
+<!-- Font Awesome uchun CDN -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 </body>
 </html>

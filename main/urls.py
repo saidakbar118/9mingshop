@@ -20,6 +20,10 @@ urlpatterns = [
     path('media/',media_view),
     path('about/',about_view),
     path('contact/',contact_view),
+    path('my-orders/', my_orders_view, name='my_orders'),
+    path('order-done/<int:order_id>/', order_done, name='order_done'),
+    path('orders/delete/<int:order_id>/', delete_order, name='delete_order'),
+
     
     #admin
     path('orders/', admin_orders_view, name='admin_orders'),
@@ -29,4 +33,5 @@ urlpatterns = [
     path('edit/<int:pk>/', edit_product, name='edit_product'),
     path('delete/<int:pk>/', delete_product, name='delete_product'),
     path('manage/categories/', manage_categories, name='manage_categories'),
+    path('update-order-status/<int:order_id>/', update_order_status, name='update_order_status'),
 ]

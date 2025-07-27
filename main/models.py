@@ -61,12 +61,22 @@ class CartItem(models.Model):
     
     
     
+    
 
 class Order(models.Model):
+    
     PAYMENT_CHOICES = (
         ('oldindan', "Oldindan to‘lov"),
         ('olgandan', "Olgandan so‘ng to‘lov"),
     )
+        
+    STATUS_CHOICES = [
+        ('ordered', 'Buyurtma berildi'),
+        ('preparing', 'Tayyorlanmoqda'),
+        ('shipped', 'Yuborildi'),
+        ('delivered', 'Yetib keldi'),
+        ('done', 'Yakunlandi'),
+    ]
 
     full_name = models.CharField(max_length=200)
     phone = models.CharField(max_length=20)
@@ -74,9 +84,22 @@ class Order(models.Model):
     payment_type = models.CharField(max_length=20, choices=PAYMENT_CHOICES)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    session_key = models.CharField(max_length=40, null=True, blank=True)  # 🔥 YANGI
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='ordered'
+    )
 
     def __str__(self):
-        return f"Buyurtma #{self.id} - {self.full_name}"
+        return f"Buyurtma #{self.id} - {self.full_name} - {self.get_status_display()}"
+
+
+    def __str__(self):
+        return f"Buyurtma #{self.id} - {self.full_name} - {self.get_status_display()}"
+
 
 
 

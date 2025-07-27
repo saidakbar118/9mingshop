@@ -96,7 +96,8 @@ def cart_view(request):
             phone=phone,
             address=address,
             payment_type=payment_type,
-            total_price=cart.total_price()
+            total_price=cart.total_price(),
+            session_key=request.session.session_key
         )
 
         # Savatdagi mahsulotlarni qo‘shamiz
@@ -264,6 +265,40 @@ def about_view(request):
 def contact_view(request):
     return render(request, 'sidebar/contact.html')
 
+from django.shortcuts import render, redirect
+from .models import Order
+
+def my_orders_view(request):
+    if not request.session.session_key:
+        request.session.create()
+
+    orders = Order.objects.filter(session_key=request.session.session_key).order_by('-created_at')
+    return render(request, 'sidebar/my_orders.html', {'orders': orders})
+
+
+def order_done(request, order_id):
+    if not request.session.session_key:
+        request.session.create()
+
+    order = get_object_or_404(Order, id=order_id, session_key=request.session.session_key)
+    if order.status == 'delivered':
+        order.status = 'done'
+        order.save()
+    return redirect('/my-orders/')
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt  # Agar frontendda csrf_token bo‘lmasa
+def delete_order(request, order_id):
+    if request.method == 'POST':
+        try:
+            order = Order.objects.get(id=order_id)
+            order.delete()
+            return JsonResponse({'success': True})
+        except Order.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Buyurtma topilmadi'})
+    return JsonResponse({'success': False, 'error': 'POST so‘rovi kerak'})
+
 
 
 
@@ -275,17 +310,25 @@ def admin_orders_view(request):
     orders = Order.objects.all().order_by('-created_at')
     return render(request, 'admin/orders_list.html', {'orders': orders})
 
+import json
+
 @csrf_exempt
 def update_order_status(request, order_id):
     if request.method == 'POST':
         try:
+            data = json.loads(request.body)
+            status = data.get('status')
+            if status not in ['ordered', 'preparing', 'shipped', 'delivered', 'done']:
+                return JsonResponse({'success': False, 'error': 'Noto‘g‘ri status'})
+
             order = Order.objects.get(pk=order_id)
-            status = request.POST.get('status')
             order.status = status
-            order.save()  # 🔥 MUHIM! — agar bu bo‘lmasa, o‘zgarish saqlanmaydi
+            order.save()
             return JsonResponse({'success': True})
         except Order.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Buyurtma topilmadi'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Noto‘g‘ri so‘rov'})
         
 
@@ -294,11 +337,12 @@ def update_order_status(request, order_id):
 def delete_order(request, order_id):
     if request.method == 'POST':
         try:
-            Order.objects.get(id=order_id).delete()
+            order = Order.objects.get(id=order_id)
+            order.delete()
             return JsonResponse({'success': True})
         except Order.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Buyurtma topilmadi'})
-    return JsonResponse({'success': False, 'error': 'Noto‘g‘ri so‘rov'})
+    return JsonResponse({'success': False, 'error': 'Faqat POST so‘rovlar qabul qilinadi'})
 
 
 def manage_categories(request):
