@@ -243,10 +243,10 @@
 
   <!-- Buyurtmalar -->
   <div class="container">
-    <h2 style="text-align: center;">Mening Buyurtmalarim</h2>
+    <h2 style="text-align: center;">Buyurtmalarim</h2>
     {% for order in orders %}
     <div class="order-card" id="order-{{ order.id }}">
-      <h3>Buyurtma  {{ order.get_status_display }}</h3>
+      <h3>{{ order.get_status_display }}</h3>
       <p><i class="fa-regular fa-clock"></i> {{ order.created_at|date:"Y-m-d H:i" }}</p>
       <ul>
         {% for item in order.items.all %}
